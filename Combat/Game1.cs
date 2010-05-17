@@ -29,7 +29,10 @@ namespace Combat
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        private Vector2 ballPosition;
+        //private Vector2 ballPosition;
+        //private bool shot = false;
+
+        private Bullet bullet;
 
         private ContactTarget contactTarget;
 
@@ -115,6 +118,7 @@ namespace Combat
 
         // This is a texture we can render.
         Texture2D myTexture;
+        Texture2D ballTexture;
 
         // Set the coordinates to draw the sprite at.
         Vector2 spritePosition = Vector2.Zero;
@@ -124,6 +128,7 @@ namespace Combat
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             myTexture = Content.Load<Texture2D>("Tank");
+            ballTexture = Content.Load<Texture2D>("Ball");
         }
 
         /// <summary>
@@ -136,7 +141,8 @@ namespace Combat
         }
 
         // Store some information about the sprite's motion.
-        Vector2 spriteSpeed = new Vector2(100.0f, 100.0f);
+        //Vector2 ballSpeed = Vector2.Negate(new Vector2(100.0f, 0f));
+
         private KeyboardState keyState;
         private float rotation = 0;
 
@@ -148,52 +154,75 @@ namespace Combat
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == 
                 ButtonState.Pressed)
                 this.Exit();
-
+            
             keyState = Keyboard.GetState();
 
             // Move the sprite around.
             UpdateSprite(gameTime);
-
+            DetectShoot();
             base.Update(gameTime);
+        }
+
+        private void DetectShoot()
+        {
+            if (keyState.IsKeyDown(Keys.Space))
+            {
+                bullet = new Bullet();
+                var originalPosition = new Vector2(spritePosition.X - (ballTexture.Width), spritePosition.Y - (ballTexture.Height / 2));
+
+                
+                bullet.Angle = rotation % CIRCLE;
+                
+                //bullet.Velocity = new Vector2(-100, 0);
+                bullet.Velocity = new Vector2(-(float)Math.Cos(rotation),
+                                             -(float)Math.Sin(rotation)) * 100.0f;
+                bullet.OriginalPosition = originalPosition + bullet.Velocity * .15f;
+                bullet.CurrentPosition = bullet.OriginalPosition;
+                //ballPosition = new Vector2(spritePosition.X - (myTexture.Width / 2 + ballTexture.Width), spritePosition.Y - (ballTexture.Height / 2));
+                //ballPosition = Vector2.Transform(ballPosition, Matrix.CreateRotationZ(rotation % CIRCLE));
+            }
         }
 
         void UpdateSprite(GameTime gameTime) 
         {
             UpdateRotation();
             // Move the sprite by speed, scaled by elapsed time.
-            //spritePosition += 
-                //spriteSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            int MaxX = 
-                graphics.GraphicsDevice.Viewport.Width - myTexture.Width;
-            int MinX = 0;
-            int MaxY = 
-                graphics.GraphicsDevice.Viewport.Height - myTexture.Height;
-            int MinY = 0;
-
-            // Check for bounce.
-            if (spritePosition.X > MaxX)
+            if (bullet != null)
             {
-                spriteSpeed.X *= -1;
-                spritePosition.X = MaxX;
-            }
+                bullet.CurrentPosition +=
+                   bullet.Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            else if (spritePosition.X < MinX)
-            {
-                spriteSpeed.X *= -1;
-                spritePosition.X = MinX;
-            }
+                int MaxX =
+                    graphics.GraphicsDevice.Viewport.Width - myTexture.Width;
+                int MinX = 0;
+                int MaxY =
+                    graphics.GraphicsDevice.Viewport.Height - myTexture.Height;
+                int MinY = 0;
 
-            if (spritePosition.Y > MaxY)
-            {
-                spriteSpeed.Y *= -1;
-                spritePosition.Y = MaxY;
-            }
+                // Check for bounce.
+                if (bullet.X > MaxX)
+                {
+                    bullet.ReverseX();
+                    bullet.X = MaxX;
+                }
 
-            else if (spritePosition.Y < MinY)
-            {
-                spriteSpeed.Y *= -1;
-                spritePosition.Y = MinY;
+                else if (bullet.X < MinX)
+                {
+                    bullet.ReverseX();
+                    bullet.X = MinX;
+                }
+
+                if (bullet.Y > MaxY)
+                {
+                    bullet.ReverseY();
+                    bullet.Y = MaxY;
+                }
+
+                else if (bullet.Y < MinY)
+                {
+                    bullet.ReverseY();
+                    bullet.Y = MinY;
+                }
             }
         }
 
@@ -220,6 +249,11 @@ namespace Combat
             Vector2 origin = new Vector2(myTexture.Width / 2, myTexture.Height / 2);
 
             spriteBatch.Draw(myTexture, spritePosition, null, Color.White, rotation % CIRCLE, origin, 1.0f, SpriteEffects.None, 0f);
+            if (bullet != null)
+            {
+                //spriteBatch.Draw(ballTexture, bullet.CurrentPosition, null, Color.White, bullet.Angle, bullet.OriginalPosition, 1.0f, SpriteEffects.None, 1f );
+                spriteBatch.Draw(ballTexture, bullet.CurrentPosition, Color.White);
+            }
             spriteBatch.End();
 
             base.Draw(gameTime);
