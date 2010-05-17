@@ -29,10 +29,8 @@ namespace Combat
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        //private Vector2 ballPosition;
-        //private bool shot = false;
 
-        private Bullet bullet;
+        private List<Bullet> bullets = new List<Bullet>();
 
         private ContactTarget contactTarget;
 
@@ -158,28 +156,44 @@ namespace Combat
             keyState = Keyboard.GetState();
 
             // Move the sprite around.
+            DetectMovement();
             UpdateSprite(gameTime);
             DetectShoot();
+            
             base.Update(gameTime);
+        }
+
+        private void DetectMovement()
+        {
+            if (keyState.IsKeyDown(Keys.Up))
+            {
+                spritePosition += new Vector2(-(float)Math.Cos(rotation),
+                                             -(float)Math.Sin(rotation)) * 2f;
+            }
+
+            if (keyState.IsKeyDown(Keys.Down))
+            {
+                spritePosition += new Vector2((float)Math.Cos(rotation),
+                                             (float)Math.Sin(rotation)) * 2f;
+            }
         }
 
         private void DetectShoot()
         {
             if (keyState.IsKeyDown(Keys.Space))
             {
-                bullet = new Bullet();
+                var bullet = new Bullet();
                 var originalPosition = new Vector2(spritePosition.X - (ballTexture.Width), spritePosition.Y - (ballTexture.Height / 2));
 
                 
                 bullet.Angle = rotation % CIRCLE;
                 
-                //bullet.Velocity = new Vector2(-100, 0);
                 bullet.Velocity = new Vector2(-(float)Math.Cos(rotation),
                                              -(float)Math.Sin(rotation)) * 100.0f;
                 bullet.OriginalPosition = originalPosition + bullet.Velocity * .15f;
                 bullet.CurrentPosition = bullet.OriginalPosition;
-                //ballPosition = new Vector2(spritePosition.X - (myTexture.Width / 2 + ballTexture.Width), spritePosition.Y - (ballTexture.Height / 2));
-                //ballPosition = Vector2.Transform(ballPosition, Matrix.CreateRotationZ(rotation % CIRCLE));
+
+                bullets.Add(bullet);
             }
         }
 
@@ -187,41 +201,44 @@ namespace Combat
         {
             UpdateRotation();
             // Move the sprite by speed, scaled by elapsed time.
-            if (bullet != null)
+            foreach (var bullet in bullets)
             {
-                bullet.CurrentPosition +=
-                   bullet.Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-                int MaxX =
-                    graphics.GraphicsDevice.Viewport.Width - myTexture.Width;
-                int MinX = 0;
-                int MaxY =
-                    graphics.GraphicsDevice.Viewport.Height - myTexture.Height;
-                int MinY = 0;
-
-                // Check for bounce.
-                if (bullet.X > MaxX)
+                if (bullet != null)
                 {
-                    bullet.ReverseX();
-                    bullet.X = MaxX;
-                }
+                    bullet.CurrentPosition +=
+                       bullet.Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-                else if (bullet.X < MinX)
-                {
-                    bullet.ReverseX();
-                    bullet.X = MinX;
-                }
+                    int MaxX =
+                        graphics.GraphicsDevice.Viewport.Width - myTexture.Width;
+                    int MinX = 0;
+                    int MaxY =
+                        graphics.GraphicsDevice.Viewport.Height - myTexture.Height;
+                    int MinY = 0;
 
-                if (bullet.Y > MaxY)
-                {
-                    bullet.ReverseY();
-                    bullet.Y = MaxY;
-                }
+                    // Check for bounce.
+                    if (bullet.X > MaxX)
+                    {
+                        bullet.ReverseX();
+                        bullet.X = MaxX;
+                    }
 
-                else if (bullet.Y < MinY)
-                {
-                    bullet.ReverseY();
-                    bullet.Y = MinY;
+                    else if (bullet.X < MinX)
+                    {
+                        bullet.ReverseX();
+                        bullet.X = MinX;
+                    }
+
+                    if (bullet.Y > MaxY)
+                    {
+                        bullet.ReverseY();
+                        bullet.Y = MaxY;
+                    }
+
+                    else if (bullet.Y < MinY)
+                    {
+                        bullet.ReverseY();
+                        bullet.Y = MinY;
+                    }
                 }
             }
         }
@@ -249,9 +266,8 @@ namespace Combat
             Vector2 origin = new Vector2(myTexture.Width / 2, myTexture.Height / 2);
 
             spriteBatch.Draw(myTexture, spritePosition, null, Color.White, rotation % CIRCLE, origin, 1.0f, SpriteEffects.None, 0f);
-            if (bullet != null)
+            foreach(var bullet in bullets)
             {
-                //spriteBatch.Draw(ballTexture, bullet.CurrentPosition, null, Color.White, bullet.Angle, bullet.OriginalPosition, 1.0f, SpriteEffects.None, 1f );
                 spriteBatch.Draw(ballTexture, bullet.CurrentPosition, Color.White);
             }
             spriteBatch.End();
