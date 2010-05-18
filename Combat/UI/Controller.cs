@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Surface.Core;
 
 namespace Combat.UI
 {
@@ -35,11 +36,13 @@ namespace Combat.UI
         public override void Initialize()
         {
             forward = new Button(this.Game, Vector2.Zero, this);
-            forward.Pressed = () => Tank.MoveForward();
+            forward.Pressed = () => Tank.StartMovingForward();
+            forward.Released = () => Tank.StopMovingForward();
             forward.TransformedCenter += new Vector2(0, ((this.Height / 2) - (forward.Height / 2)) * -1);
 
             backward = new Button(this.Game, Vector2.Zero, this);
-            backward.Pressed = () => Tank.MoveBackward();
+            backward.Pressed = () => Tank.StartMovingBackward();
+            backward.Released = () => Tank.StopMovingBackward();
             backward.TransformedCenter += new Vector2(0, ((this.Height / 2) - (backward.Height / 2)));
 
             left = new Button(this.Game, Vector2.Zero, this);
@@ -62,18 +65,26 @@ namespace Combat.UI
             base.Initialize();
         }
 
-        internal void HandleContact(Microsoft.Surface.Core.Contact contact)
+        public void HandleContactAdded(Microsoft.Surface.Core.Contact contact)
         {
             var touched = this.HitTesting(contact, false);
 
             if (touched is Button)
             {
                 var button = touched as Button;
-                Console.WriteLine("here");
                 button.Pressed();
             }
+        }
 
-            
+        public void HandleContactReleased(Contact contact)
+        {
+            var touched = this.HitTesting(contact, false);
+
+            if (touched is Button)
+            {
+                var button = touched as Button;
+                button.Released();
+            }
         }
     }
 }

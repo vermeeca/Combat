@@ -69,6 +69,7 @@ namespace Combat
             var spritePosition = new Vector2(graphics.GraphicsDevice.Viewport.Width - 100, graphics.GraphicsDevice.Viewport.Height / 2);
 
             ContactTarget.ContactAdded += new EventHandler<ContactEventArgs>(ContactTarget_ContactAdded);
+            ContactTarget.ContactRemoved += new EventHandler<ContactEventArgs>(ContactTarget_ContactRemoved);
 
             tank = new Tank(this, spritePosition);
             player1Controller = new Controller(this, new Vector2(graphics.GraphicsDevice.Viewport.Width, graphics.GraphicsDevice.Viewport.Height));
@@ -83,9 +84,14 @@ namespace Combat
             base.Initialize();
         }
 
+        void ContactTarget_ContactRemoved(object sender, ContactEventArgs e)
+        {
+            player1Controller.HandleContactReleased(e.Contact);
+        }
+
         void ContactTarget_ContactAdded(object sender, ContactEventArgs e)
         {
-            player1Controller.HandleContact(e.Contact);
+            player1Controller.HandleContactAdded(e.Contact);
         }
 
       
@@ -185,15 +191,25 @@ namespace Combat
 
         private void DetectMovement()
         {
-            if (keyState.IsKeyDown(Keys.Up))
-            {
-                tank.MoveForward();
-            }
 
-            if (keyState.IsKeyDown(Keys.Down))
-            {
-                tank.MoveBackward();
-            }
+
+            //if (keyState.IsKeyDown(Keys.Up))
+            //{
+            //    tank.StartMovingForward();
+            //}
+            //else
+            //{
+            //    tank.StopMovingForward();
+            //}
+
+            //if (keyState.IsKeyDown(Keys.Down))
+            //{
+            //    tank.StartMovingBackward();
+            //}
+            //else
+            //{
+            //    tank.StopMovingBackward();
+            //}
         }
 
         private void DetectShoot()

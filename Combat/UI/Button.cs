@@ -23,5 +23,6 @@ namespace Combat.UI
 
         public Action Pressed { get; set; }
 
+        public Action Released { get; set; }
     }
 }
