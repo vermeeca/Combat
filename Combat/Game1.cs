@@ -19,6 +19,7 @@ using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Net;
 using Microsoft.Xna.Framework.Storage;
 using Microsoft.Surface.Core;
+using Combat.UI;
 
 namespace Combat
 {
@@ -29,10 +30,13 @@ namespace Combat
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        private ContactTarget contactTarget;
+
+
 
         private List<Bullet> bullets = new List<Bullet>();
 
-        private ContactTarget contactTarget;
+        private Tank tank;
 
 
         /// <summary>
@@ -61,10 +65,31 @@ namespace Combat
             SetWindowOnSurface();
             InitializeSurfaceInput();
 
-            spritePosition = new Vector2(graphics.GraphicsDevice.Viewport.Width - 100, graphics.GraphicsDevice.Viewport.Height / 2);
+            var spritePosition = new Vector2(graphics.GraphicsDevice.Viewport.Width - 100, graphics.GraphicsDevice.Viewport.Height / 2);
+
+            //ContactTarget.ContactAdded += (s, e) => System.Diagnostics.Debug.WriteLine(e.Contact.CenterX);
+            //ContactTarget.ContactTapGesture += (s, e) => System.Diagnostics.Debug.WriteLine(e.Contact.CenterX);
+
+            ContactTarget.ContactAdded += new EventHandler<ContactEventArgs>(ContactTarget_ContactAdded);
+            ContactTarget.ContactHoldGesture += new EventHandler<ContactEventArgs>(ContactTarget_ContactHoldGesture);
+
+            tank = new Tank(this, spritePosition);
+            Components.Add(tank);
 
             base.Initialize();
         }
+
+        void ContactTarget_ContactHoldGesture(object sender, ContactEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ContactTarget_ContactAdded(object sender, ContactEventArgs e)
+        {
+            
+        }
+
+       
         /// <summary>
         /// Moves and sizes the window to cover the input surface.
         /// </summary>
@@ -115,17 +140,14 @@ namespace Combat
 
 
         // This is a texture we can render.
-        Texture2D myTexture;
         Texture2D ballTexture;
 
-        // Set the coordinates to draw the sprite at.
-        Vector2 spritePosition = Vector2.Zero;
 
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            myTexture = Content.Load<Texture2D>("Tank");
+            
             ballTexture = Content.Load<Texture2D>("Ball");
         }
 
@@ -142,7 +164,6 @@ namespace Combat
         //Vector2 ballSpeed = Vector2.Negate(new Vector2(100.0f, 0f));
 
         private KeyboardState keyState;
-        private float rotation = 0;
 
         private static readonly float CIRCLE = MathHelper.Pi * 2;
 
@@ -167,14 +188,14 @@ namespace Combat
         {
             if (keyState.IsKeyDown(Keys.Up))
             {
-                spritePosition += new Vector2(-(float)Math.Cos(rotation),
-                                             -(float)Math.Sin(rotation)) * 2f;
+                tank.TransformedCenter += new Vector2(-(float)Math.Cos(tank.Rotation),
+                                             -(float)Math.Sin(tank.Rotation)) * 2f;
             }
 
             if (keyState.IsKeyDown(Keys.Down))
             {
-                spritePosition += new Vector2((float)Math.Cos(rotation),
-                                             (float)Math.Sin(rotation)) * 2f;
+                tank.TransformedCenter += new Vector2((float)Math.Cos(tank.Rotation),
+                                             (float)Math.Sin(tank.Rotation)) * 2f;
             }
         }
 
@@ -183,13 +204,13 @@ namespace Combat
             if (keyState.IsKeyDown(Keys.Space))
             {
                 var bullet = new Bullet();
-                var originalPosition = new Vector2(spritePosition.X - (ballTexture.Width), spritePosition.Y - (ballTexture.Height / 2));
+                var originalPosition = new Vector2(tank.TransformedCenter.X - (ballTexture.Width), tank.TransformedCenter.Y - (ballTexture.Height / 2));
 
                 
-                bullet.Angle = rotation % CIRCLE;
-                
-                bullet.Velocity = new Vector2(-(float)Math.Cos(rotation),
-                                             -(float)Math.Sin(rotation)) * 100.0f;
+                bullet.Angle = tank.Rotation % CIRCLE;
+
+                bullet.Velocity = new Vector2(-(float)Math.Cos(tank.Rotation),
+                                             -(float)Math.Sin(tank.Rotation)) * 100.0f;
                 bullet.OriginalPosition = originalPosition + bullet.Velocity * .15f;
                 bullet.CurrentPosition = bullet.OriginalPosition;
 
@@ -209,10 +230,10 @@ namespace Combat
                        bullet.Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
                     int MaxX =
-                        graphics.GraphicsDevice.Viewport.Width - myTexture.Width;
+                        graphics.GraphicsDevice.Viewport.Width - (int)tank.Width;
                     int MinX = 0;
                     int MaxY =
-                        graphics.GraphicsDevice.Viewport.Height - myTexture.Height;
+                        graphics.GraphicsDevice.Viewport.Height - (int)tank.Height;
                     int MinY = 0;
 
                     // Check for bounce.
@@ -247,12 +268,14 @@ namespace Combat
         {
             if (keyState.IsKeyDown(Keys.Left))
             {
-                rotation -= .035f;
+                tank.Rotation -= .035f;
             }
             if (keyState.IsKeyDown(Keys.Right))
             {
-                rotation += .035f;
+                tank.Rotation += .035f;
             }
+            
+        
         }
 
 
@@ -263,9 +286,9 @@ namespace Combat
             // Draw the sprite.
             spriteBatch.Begin(SpriteBlendMode.AlphaBlend);
 
-            Vector2 origin = new Vector2(myTexture.Width / 2, myTexture.Height / 2);
+            //Vector2 origin = new Vector2(tank.Width / 2, tank.Height / 2);
 
-            spriteBatch.Draw(myTexture, spritePosition, null, Color.White, rotation % CIRCLE, origin, 1.0f, SpriteEffects.None, 0f);
+            //spriteBatch.Draw(myTexture, spritePosition, null, Color.White, rotation % CIRCLE, origin, 1.0f, SpriteEffects.None, 0f);
             foreach(var bullet in bullets)
             {
                 spriteBatch.Draw(ballTexture, bullet.CurrentPosition, Color.White);
