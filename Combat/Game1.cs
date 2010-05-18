@@ -32,6 +32,7 @@ namespace Combat
         SpriteBatch spriteBatch;
         private ContactTarget contactTarget;
 
+        private Controller player1Controller;
 
 
         private List<Bullet> bullets = new List<Bullet>();
@@ -67,29 +68,27 @@ namespace Combat
 
             var spritePosition = new Vector2(graphics.GraphicsDevice.Viewport.Width - 100, graphics.GraphicsDevice.Viewport.Height / 2);
 
-            //ContactTarget.ContactAdded += (s, e) => System.Diagnostics.Debug.WriteLine(e.Contact.CenterX);
-            //ContactTarget.ContactTapGesture += (s, e) => System.Diagnostics.Debug.WriteLine(e.Contact.CenterX);
-
             ContactTarget.ContactAdded += new EventHandler<ContactEventArgs>(ContactTarget_ContactAdded);
-            ContactTarget.ContactHoldGesture += new EventHandler<ContactEventArgs>(ContactTarget_ContactHoldGesture);
 
             tank = new Tank(this, spritePosition);
+            player1Controller = new Controller(this, new Vector2(graphics.GraphicsDevice.Viewport.Width, graphics.GraphicsDevice.Viewport.Height));
+            player1Controller.Tank = tank;
+            player1Controller.Height *= 2;
+            player1Controller.Width *= 2;
+            player1Controller.TransformedCenter -= new Vector2(player1Controller.Width * 2, player1Controller.Height / 2);
+
             Components.Add(tank);
+            Components.Add(player1Controller);
 
             base.Initialize();
         }
 
-        void ContactTarget_ContactHoldGesture(object sender, ContactEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
         void ContactTarget_ContactAdded(object sender, ContactEventArgs e)
         {
-            
+            player1Controller.HandleContact(e.Contact);
         }
 
-       
+      
         /// <summary>
         /// Moves and sizes the window to cover the input surface.
         /// </summary>
@@ -188,14 +187,12 @@ namespace Combat
         {
             if (keyState.IsKeyDown(Keys.Up))
             {
-                tank.TransformedCenter += new Vector2(-(float)Math.Cos(tank.Rotation),
-                                             -(float)Math.Sin(tank.Rotation)) * 2f;
+                tank.MoveForward();
             }
 
             if (keyState.IsKeyDown(Keys.Down))
             {
-                tank.TransformedCenter += new Vector2((float)Math.Cos(tank.Rotation),
-                                             (float)Math.Sin(tank.Rotation)) * 2f;
+                tank.MoveBackward();
             }
         }
 
