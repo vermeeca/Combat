@@ -65,6 +65,25 @@ namespace Combat.UI
             base.Initialize();
         }
 
+        public void HandleContactChanged(Contact contact)
+        {
+            var allbuttons = new[] { forward, backward, left, right, fire };
+            var button = allbuttons.FirstOrDefault(b => b.Contact.Id == contact.Id);
+
+            if (button == null)
+                return;
+
+            if (button.HitTest(contact, false))
+            {
+                button.Pressed();
+            }
+            else
+            {
+                button.Released();
+            }
+        }
+
+
         public void HandleContactAdded(Microsoft.Surface.Core.Contact contact)
         {
             var touched = this.HitTesting(contact, false);
@@ -72,7 +91,11 @@ namespace Combat.UI
             if (touched is Button)
             {
                 var button = touched as Button;
-                button.Pressed();
+                button.Contact = contact;
+                if (button.Pressed != null)
+                {
+                    button.Pressed();
+                }
             }
         }
 
@@ -83,7 +106,11 @@ namespace Combat.UI
             if (touched is Button)
             {
                 var button = touched as Button;
-                button.Released();
+                button.Contact = null;
+                if (button.Released != null)
+                {
+                    button.Released();
+                }
             }
         }
     }

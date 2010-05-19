@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Surface.Core;
 
 namespace Combat.UI
 {
@@ -20,6 +21,9 @@ namespace Combat.UI
         { 
             
         }
+
+        public Contact Contact { get; set; }
+
 
         public Action Pressed { get; set; }
 

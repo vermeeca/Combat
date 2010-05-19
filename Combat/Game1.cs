@@ -70,6 +70,7 @@ namespace Combat
 
             ContactTarget.ContactAdded += new EventHandler<ContactEventArgs>(ContactTarget_ContactAdded);
             ContactTarget.ContactRemoved += new EventHandler<ContactEventArgs>(ContactTarget_ContactRemoved);
+            ContactTarget.ContactChanged += new EventHandler<ContactEventArgs>(ContactTarget_ContactChanged);
 
             tank = new Tank(this, spritePosition);
             player1Controller = new Controller(this, new Vector2(graphics.GraphicsDevice.Viewport.Width, graphics.GraphicsDevice.Viewport.Height));
@@ -82,6 +83,11 @@ namespace Combat
             Components.Add(player1Controller);
 
             base.Initialize();
+        }
+
+        void ContactTarget_ContactChanged(object sender, ContactEventArgs e)
+        {
+            player1Controller.HandleContactChanged(e.Contact);
         }
 
         void ContactTarget_ContactRemoved(object sender, ContactEventArgs e)
