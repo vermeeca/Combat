@@ -39,7 +39,6 @@ namespace Combat
 
         private Tank player1;
 
-
         /// <summary>
         /// The target receiving all surface input for the application.
         /// </summary>
@@ -88,19 +87,22 @@ namespace Combat
 
         private void TankFired(object sender, EventArgs<Tank> e)
         {
-            var bullet = new Bullet();
-            var tank = e.EventData;
-            var originalPosition = new Vector2(tank.TransformedCenter.X - (ballTexture.Width), tank.TransformedCenter.Y - (ballTexture.Height / 2));
+            lock (bulletLock)
+            {
+                var bullet = new Bullet();
+                var tank = e.EventData;
+                var originalPosition = new Vector2(tank.TransformedCenter.X - (ballTexture.Width), tank.TransformedCenter.Y - (ballTexture.Height / 2));
 
 
-            bullet.Angle = tank.Rotation % CIRCLE;
+                bullet.Angle = tank.Rotation % CIRCLE;
 
-            bullet.Velocity = new Vector2(-(float)Math.Cos(tank.Rotation),
-                                         -(float)Math.Sin(tank.Rotation)) * 100.0f;
-            bullet.OriginalPosition = originalPosition + bullet.Velocity * .15f;
-            bullet.CurrentPosition = bullet.OriginalPosition;
+                bullet.Velocity = new Vector2(-(float)Math.Cos(tank.Rotation),
+                                             -(float)Math.Sin(tank.Rotation)) * 1000.0f;
+                bullet.OriginalPosition = originalPosition + bullet.Velocity * .015f;
+                bullet.CurrentPosition = bullet.OriginalPosition;
 
-            bullets.Add(bullet);
+                bullets.Add(bullet);
+            }
         }
 
         void ContactTarget_ContactChanged(object sender, ContactEventArgs e)
@@ -211,51 +213,60 @@ namespace Combat
             base.Update(gameTime);
         }
 
-   
 
+        private object bulletLock = new object();
+   
         void UpdateSprite(GameTime gameTime) 
         {
-            UpdateRotation();
-            // Move the sprite by speed, scaled by elapsed time.
-            foreach (var bullet in bullets)
+            lock (bulletLock)
             {
-                if (bullet != null)
+                UpdateRotation();
+                // Move the sprite by speed, scaled by elapsed time.
+                foreach (var bullet in bullets)
                 {
-                    bullet.CurrentPosition +=
-                       bullet.Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-                    int MaxX =
-                        graphics.GraphicsDevice.Viewport.Width - (int)player1.Width;
-                    int MinX = 0;
-                    int MaxY =
-                        graphics.GraphicsDevice.Viewport.Height - (int)player1.Height;
-                    int MinY = 0;
-
-                    // Check for bounce.
-                    if (bullet.X > MaxX)
+                    if (bullet != null)
                     {
-                        bullet.ReverseX();
-                        bullet.X = MaxX;
-                    }
+                        var traveled = bullet.Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-                    else if (bullet.X < MinX)
-                    {
-                        bullet.ReverseX();
-                        bullet.X = MinX;
-                    }
+                        bullet.CurrentPosition += traveled;
 
-                    if (bullet.Y > MaxY)
-                    {
-                        bullet.ReverseY();
-                        bullet.Y = MaxY;
-                    }
+                        bullet.DistanceTraveled += traveled.Length();
 
-                    else if (bullet.Y < MinY)
-                    {
-                        bullet.ReverseY();
-                        bullet.Y = MinY;
+                        int MaxX =
+                            graphics.GraphicsDevice.Viewport.Width - (int)player1.Width;
+                        int MinX = 0;
+                        int MaxY =
+                            graphics.GraphicsDevice.Viewport.Height - (int)player1.Height;
+                        int MinY = 0;
+
+                        // Check for bounce.
+                        if (bullet.X > MaxX)
+                        {
+                            bullet.ReverseX();
+                            bullet.X = MaxX;
+                        }
+
+                        else if (bullet.X < MinX)
+                        {
+                            bullet.ReverseX();
+                            bullet.X = MinX;
+                        }
+
+                        if (bullet.Y > MaxY)
+                        {
+                            bullet.ReverseY();
+                            bullet.Y = MaxY;
+                        }
+
+                        else if (bullet.Y < MinY)
+                        {
+                            bullet.ReverseY();
+                            bullet.Y = MinY;
+                        }
                     }
                 }
+
+                bullets.RemoveAll(b => b.HasTraveledMaxDistance());
             }
         }
 

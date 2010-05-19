@@ -44,5 +44,12 @@ namespace Combat
         {
             Velocity = new Vector2(Velocity.X, Velocity.Y * -1);
         }
+
+        public float DistanceTraveled { get; set; }
+
+        public bool HasTraveledMaxDistance()
+        {
+            return DistanceTraveled > 1500;
+        }
     }
 }

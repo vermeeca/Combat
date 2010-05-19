@@ -24,6 +24,7 @@ namespace Combat.UI
 
         public Contact Contact { get; set; }
 
+        
 
         public Action Pressed { get; set; }
 
