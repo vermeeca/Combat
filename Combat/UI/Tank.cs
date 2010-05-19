@@ -17,6 +17,8 @@ namespace Combat.UI
         private bool turningRight = false;
         private bool turningLeft = false;
 
+        public EventHandler<EventArgs<Tank>> Fired;
+
 
         public Tank(Game game, Vector2 position)
             : this(game, position, game.Content.Load<Texture2D>("Tank"))
@@ -30,7 +32,14 @@ namespace Combat.UI
 
         }
 
-        
+
+        public void Fire()
+        {
+            if (Fired != null)
+            {
+                Fired(this, new EventArgs<Tank>(this));
+            }
+        }
 
         public void StartMovingForward()
         {

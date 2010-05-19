@@ -58,6 +58,7 @@ namespace Combat.UI
 
             fire = new Button(this.Game, Vector2.Zero, this);
             fire.TransformedCenter += new Vector2(((this.Width / 2) - left.Width / 2) * -1, ((this.Height / 2) - (forward.Height / 2)) * -1);
+            fire.Pressed = Tank.Fire;
 
             AddChild(forward);
             AddChild(backward);

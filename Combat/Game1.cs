@@ -37,7 +37,7 @@ namespace Combat
 
         private List<Bullet> bullets = new List<Bullet>();
 
-        private Tank tank;
+        private Tank player1;
 
 
         /// <summary>
@@ -72,17 +72,35 @@ namespace Combat
             ContactTarget.ContactRemoved += new EventHandler<ContactEventArgs>(ContactTarget_ContactRemoved);
             ContactTarget.ContactChanged += new EventHandler<ContactEventArgs>(ContactTarget_ContactChanged);
 
-            tank = new Tank(this, spritePosition);
+            player1 = new Tank(this, spritePosition);
+            player1.Fired += TankFired;
             player1Controller = new Controller(this, new Vector2(graphics.GraphicsDevice.Viewport.Width, graphics.GraphicsDevice.Viewport.Height));
-            player1Controller.Tank = tank;
+            player1Controller.Tank = player1;
             player1Controller.Height *= 2;
             player1Controller.Width *= 2;
             player1Controller.TransformedCenter -= new Vector2(player1Controller.Width * 2, player1Controller.Height / 2);
 
-            Components.Add(tank);
+            Components.Add(player1);
             Components.Add(player1Controller);
 
             base.Initialize();
+        }
+
+        private void TankFired(object sender, EventArgs<Tank> e)
+        {
+            var bullet = new Bullet();
+            var tank = e.EventData;
+            var originalPosition = new Vector2(tank.TransformedCenter.X - (ballTexture.Width), tank.TransformedCenter.Y - (ballTexture.Height / 2));
+
+
+            bullet.Angle = tank.Rotation % CIRCLE;
+
+            bullet.Velocity = new Vector2(-(float)Math.Cos(tank.Rotation),
+                                         -(float)Math.Sin(tank.Rotation)) * 100.0f;
+            bullet.OriginalPosition = originalPosition + bullet.Velocity * .15f;
+            bullet.CurrentPosition = bullet.OriginalPosition;
+
+            bullets.Add(bullet);
         }
 
         void ContactTarget_ContactChanged(object sender, ContactEventArgs e)
@@ -188,54 +206,12 @@ namespace Combat
             keyState = Keyboard.GetState();
 
             // Move the sprite around.
-            DetectMovement();
             UpdateSprite(gameTime);
-            DetectShoot();
             
             base.Update(gameTime);
         }
 
-        private void DetectMovement()
-        {
-
-
-            //if (keyState.IsKeyDown(Keys.Up))
-            //{
-            //    tank.StartMovingForward();
-            //}
-            //else
-            //{
-            //    tank.StopMovingForward();
-            //}
-
-            //if (keyState.IsKeyDown(Keys.Down))
-            //{
-            //    tank.StartMovingBackward();
-            //}
-            //else
-            //{
-            //    tank.StopMovingBackward();
-            //}
-        }
-
-        private void DetectShoot()
-        {
-            if (keyState.IsKeyDown(Keys.Space))
-            {
-                var bullet = new Bullet();
-                var originalPosition = new Vector2(tank.TransformedCenter.X - (ballTexture.Width), tank.TransformedCenter.Y - (ballTexture.Height / 2));
-
-                
-                bullet.Angle = tank.Rotation % CIRCLE;
-
-                bullet.Velocity = new Vector2(-(float)Math.Cos(tank.Rotation),
-                                             -(float)Math.Sin(tank.Rotation)) * 100.0f;
-                bullet.OriginalPosition = originalPosition + bullet.Velocity * .15f;
-                bullet.CurrentPosition = bullet.OriginalPosition;
-
-                bullets.Add(bullet);
-            }
-        }
+   
 
         void UpdateSprite(GameTime gameTime) 
         {
@@ -249,10 +225,10 @@ namespace Combat
                        bullet.Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
                     int MaxX =
-                        graphics.GraphicsDevice.Viewport.Width - (int)tank.Width;
+                        graphics.GraphicsDevice.Viewport.Width - (int)player1.Width;
                     int MinX = 0;
                     int MaxY =
-                        graphics.GraphicsDevice.Viewport.Height - (int)tank.Height;
+                        graphics.GraphicsDevice.Viewport.Height - (int)player1.Height;
                     int MinY = 0;
 
                     // Check for bounce.
@@ -287,11 +263,11 @@ namespace Combat
         {
             if (keyState.IsKeyDown(Keys.Left))
             {
-                tank.Rotation -= .035f;
+                player1.Rotation -= .035f;
             }
             if (keyState.IsKeyDown(Keys.Right))
             {
-                tank.Rotation += .035f;
+                player1.Rotation += .035f;
             }
             
         
