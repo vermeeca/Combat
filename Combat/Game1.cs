@@ -33,11 +33,13 @@ namespace Combat
         private ContactTarget contactTarget;
 
         private Controller player1Controller;
+        private Controller player2Controller;
 
 
         private List<Bullet> bullets = new List<Bullet>();
 
         private Tank player1;
+        private Tank player2;
 
         /// <summary>
         /// The target receiving all surface input for the application.
@@ -65,22 +67,37 @@ namespace Combat
             SetWindowOnSurface();
             InitializeSurfaceInput();
 
-            var spritePosition = new Vector2(graphics.GraphicsDevice.Viewport.Width - 100, graphics.GraphicsDevice.Viewport.Height / 2);
+            var player1Position = new Vector2(graphics.GraphicsDevice.Viewport.Width - 100, graphics.GraphicsDevice.Viewport.Height / 2);
+            var player2Position = new Vector2(100, graphics.GraphicsDevice.Viewport.Height / 2);
 
             ContactTarget.ContactAdded += new EventHandler<ContactEventArgs>(ContactTarget_ContactAdded);
             ContactTarget.ContactRemoved += new EventHandler<ContactEventArgs>(ContactTarget_ContactRemoved);
             ContactTarget.ContactChanged += new EventHandler<ContactEventArgs>(ContactTarget_ContactChanged);
 
-            player1 = new Tank(this, spritePosition);
+            player1 = new Tank(this, player1Position);
             player1.Fired += TankFired;
             player1Controller = new Controller(this, new Vector2(graphics.GraphicsDevice.Viewport.Width, graphics.GraphicsDevice.Viewport.Height));
             player1Controller.Tank = player1;
             player1Controller.Height *= 2;
             player1Controller.Width *= 2;
-            player1Controller.TransformedCenter -= new Vector2(player1Controller.Width * 2, player1Controller.Height / 2);
+            player1Controller.TransformedCenter -= new Vector2(player1Controller.Width * 1.5f, player1Controller.Height / 2);
+
+            player2 = new Tank(this, player2Position);
+            player2.Rotation = MathHelper.ToRadians(180);
+            player2.Fired += TankFired;
+
+            player2Controller = new Controller(this, new Vector2(0, graphics.GraphicsDevice.Viewport.Height));
+            player2Controller.Tank = player2;
+            player2Controller.Height *= 2;
+            player2Controller.Width *= 2;
+            player2Controller.TransformedCenter -= new Vector2(player1Controller.Width * -1.5f, player1Controller.Height / 2);
+
+
 
             Components.Add(player1);
+            Components.Add(player2);
             Components.Add(player1Controller);
+            Components.Add(player2Controller);
 
             base.Initialize();
         }
@@ -108,16 +125,19 @@ namespace Combat
         void ContactTarget_ContactChanged(object sender, ContactEventArgs e)
         {
             player1Controller.HandleContactChanged(e.Contact);
+            player2Controller.HandleContactChanged(e.Contact);
         }
 
         void ContactTarget_ContactRemoved(object sender, ContactEventArgs e)
         {
             player1Controller.HandleContactReleased(e.Contact);
+            player2Controller.HandleContactReleased(e.Contact);
         }
 
         void ContactTarget_ContactAdded(object sender, ContactEventArgs e)
         {
             player1Controller.HandleContactAdded(e.Contact);
+            player2Controller.HandleContactAdded(e.Contact);
         }
 
       
@@ -220,7 +240,6 @@ namespace Combat
         {
             lock (bulletLock)
             {
-                UpdateRotation();
                 // Move the sprite by speed, scaled by elapsed time.
                 foreach (var bullet in bullets)
                 {
@@ -270,19 +289,7 @@ namespace Combat
             }
         }
 
-        private void UpdateRotation()
-        {
-            if (keyState.IsKeyDown(Keys.Left))
-            {
-                player1.Rotation -= .035f;
-            }
-            if (keyState.IsKeyDown(Keys.Right))
-            {
-                player1.Rotation += .035f;
-            }
-            
-        
-        }
+       
 
 
         protected override void Draw(GameTime gameTime)
@@ -292,9 +299,6 @@ namespace Combat
             // Draw the sprite.
             spriteBatch.Begin(SpriteBlendMode.AlphaBlend);
 
-            //Vector2 origin = new Vector2(tank.Width / 2, tank.Height / 2);
-
-            //spriteBatch.Draw(myTexture, spritePosition, null, Color.White, rotation % CIRCLE, origin, 1.0f, SpriteEffects.None, 0f);
             foreach(var bullet in bullets)
             {
                 spriteBatch.Draw(ballTexture, bullet.CurrentPosition, Color.White);
