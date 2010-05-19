@@ -47,9 +47,13 @@ namespace Combat.UI
 
             left = new Button(this.Game, Vector2.Zero, this);
             left.TransformedCenter += new Vector2(((this.Width / 2) - left.Width / 2) * -1, 0);
+            left.Pressed = Tank.StartTurningLeft;
+            left.Released = Tank.StopTurningLeft;
 
             right = new Button(this.Game, Vector2.Zero, this);
             right.TransformedCenter += new Vector2(((this.Width / 2) - right.Width / 2), 0);
+            right.Pressed = Tank.StartTurningRight;
+            right.Released = Tank.StopTurningRight;
 
 
             fire = new Button(this.Game, Vector2.Zero, this);
@@ -68,7 +72,7 @@ namespace Combat.UI
         public void HandleContactChanged(Contact contact)
         {
             var allbuttons = new[] { forward, backward, left, right, fire };
-            var button = allbuttons.FirstOrDefault(b => b.Contact.Id == contact.Id);
+            var button = allbuttons.Where(b=>b.Contact != null).FirstOrDefault(b => b.Contact.Id == contact.Id);
 
             if (button == null)
                 return;

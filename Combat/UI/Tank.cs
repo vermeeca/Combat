@@ -52,6 +52,26 @@ namespace Combat.UI
             movingBackward = false;
         }
 
+        public void StartTurningRight()
+        {
+            turningRight = true;
+        }
+
+        public void StopTurningRight()
+        {
+            turningRight = false;
+        }
+
+        public void StartTurningLeft()
+        {
+            turningLeft = true;
+        }
+
+        public void StopTurningLeft()
+        {
+            turningLeft = false;
+        }
+
         public override void Update(GameTime gameTime)
         {
             if (movingForward)
@@ -62,6 +82,15 @@ namespace Combat.UI
             {
                 MoveBackward();
             }
+            if (turningRight)
+            {
+                Rotation += .035f;
+            }
+            if (turningLeft)
+            {
+                Rotation -= .035f;
+            }
+
             base.Update(gameTime);
         }
 
