@@ -19,7 +19,7 @@ namespace Combat.UI
         private Button(Game game, Vector2 position, Texture2D texture, UIElement parent)
             : base(game, null, null, texture, new Vector2?(position), texture.Width, texture.Height, parent)
         { 
-            
+
         }
 
         public Contact Contact { get; set; }

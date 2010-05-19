@@ -103,7 +103,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bullet.cs" />
+    <Compile Include="CombatGameExtensions.cs" />
+    <Compile Include="UI\Bullet.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

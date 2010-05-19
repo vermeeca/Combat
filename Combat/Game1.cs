@@ -36,7 +36,7 @@ namespace Combat
         private Controller player2Controller;
 
 
-        private List<Bullet> bullets = new List<Bullet>();
+        //private List<Bullet> bullets = new List<Bullet>();
 
         private Tank player1;
         private Tank player2;
@@ -104,22 +104,18 @@ namespace Combat
 
         private void TankFired(object sender, EventArgs<Tank> e)
         {
-            lock (bulletLock)
-            {
-                var bullet = new Bullet();
-                var tank = e.EventData;
-                var originalPosition = new Vector2(tank.TransformedCenter.X - (ballTexture.Width), tank.TransformedCenter.Y - (ballTexture.Height / 2));
+            var tank = e.EventData;
 
+            var velocity = new Vector2(-(float)Math.Cos(tank.Rotation),
+                                         -(float)Math.Sin(tank.Rotation)) * 1000.0f;
+            var bullet = new Bullet(this, tank.TransformedCenter + velocity * .015f);
+                        
+            bullet.OwningTank = tank;
 
-                bullet.Angle = tank.Rotation % CIRCLE;
+            bullet.Velocity = velocity;
 
-                bullet.Velocity = new Vector2(-(float)Math.Cos(tank.Rotation),
-                                             -(float)Math.Sin(tank.Rotation)) * 1000.0f;
-                bullet.OriginalPosition = originalPosition + bullet.Velocity * .015f;
-                bullet.CurrentPosition = bullet.OriginalPosition;
-
-                bullets.Add(bullet);
-            }
+            Components.Add(bullet);
+            
         }
 
         void ContactTarget_ContactChanged(object sender, ContactEventArgs e)
@@ -198,8 +194,6 @@ namespace Combat
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            
-            ballTexture = Content.Load<Texture2D>("Ball");
         }
 
         /// <summary>
@@ -211,100 +205,12 @@ namespace Combat
             // TODO: Unload any non ContentManager content here
         }
 
-        // Store some information about the sprite's motion.
-        //Vector2 ballSpeed = Vector2.Negate(new Vector2(100.0f, 0f));
 
-        private KeyboardState keyState;
-
-        private static readonly float CIRCLE = MathHelper.Pi * 2;
-
-        protected override void Update(GameTime gameTime)
-        {
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == 
-                ButtonState.Pressed)
-                this.Exit();
-            
-            keyState = Keyboard.GetState();
-
-            // Move the sprite around.
-            UpdateSprite(gameTime);
-            
-            base.Update(gameTime);
-        }
-
-
-        private object bulletLock = new object();
-   
-        void UpdateSprite(GameTime gameTime) 
-        {
-            lock (bulletLock)
-            {
-                // Move the sprite by speed, scaled by elapsed time.
-                foreach (var bullet in bullets)
-                {
-                    if (bullet != null)
-                    {
-                        var traveled = bullet.Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-                        bullet.CurrentPosition += traveled;
-
-                        bullet.DistanceTraveled += traveled.Length();
-
-                        int MaxX =
-                            graphics.GraphicsDevice.Viewport.Width - (int)player1.Width;
-                        int MinX = 0;
-                        int MaxY =
-                            graphics.GraphicsDevice.Viewport.Height - (int)player1.Height;
-                        int MinY = 0;
-
-                        // Check for bounce.
-                        if (bullet.X > MaxX)
-                        {
-                            bullet.ReverseX();
-                            bullet.X = MaxX;
-                        }
-
-                        else if (bullet.X < MinX)
-                        {
-                            bullet.ReverseX();
-                            bullet.X = MinX;
-                        }
-
-                        if (bullet.Y > MaxY)
-                        {
-                            bullet.ReverseY();
-                            bullet.Y = MaxY;
-                        }
-
-                        else if (bullet.Y < MinY)
-                        {
-                            bullet.ReverseY();
-                            bullet.Y = MinY;
-                        }
-                    }
-                }
-
-                bullets.RemoveAll(b => b.HasTraveledMaxDistance());
-            }
-        }
-
-       
 
 
         protected override void Draw(GameTime gameTime)
         {
             graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            // Draw the sprite.
-            spriteBatch.Begin(SpriteBlendMode.AlphaBlend);
-
-            foreach(var bullet in bullets)
-            {
-                spriteBatch.Draw(ballTexture, bullet.CurrentPosition, Color.White);
-            }
-            spriteBatch.End();
-
             base.Draw(gameTime);
         }
     }
