@@ -32,6 +32,13 @@ namespace Combat.UI
 
         }
 
+        private TimeSpan? deathTimeout;
+
+        public void Die()
+        {
+            deathTimeout = TimeSpan.FromSeconds(2);
+        }
+
 
         public void Fire()
         {
@@ -100,7 +107,18 @@ namespace Combat.UI
                 Rotation -= .035f;
             }
 
+            if (Dying())
+            {
+                Rotation += .5f;
+                deathTimeout.Value.Subtract(gameTime.ElapsedGameTime);
+            }
+
             base.Update(gameTime);
+        }
+
+        private bool Dying()
+        {
+            return deathTimeout != null && deathTimeout.Value.TotalMilliseconds > 0;
         }
 
         private void MoveForward()

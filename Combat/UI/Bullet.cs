@@ -35,6 +35,11 @@ namespace Combat
             this.DistanceTraveled += traveled.Length();
             CheckBounce();
             CheckDistanceTraveled();
+            if (HasHitOpponent())
+            {
+                Opponent.Die();
+                Game.Components.Remove(this);
+            }
             base.Update(gameTime);
 
         }
@@ -98,7 +103,12 @@ namespace Combat
             return DistanceTraveled > 1500;
         }
 
-        public Tank OwningTank { get; set; }
+        public bool HasHitOpponent()
+        {
+            return this.DrawingRectangle.Intersects(Opponent.DrawingRectangle);
+        }
+
+        public Tank Opponent { get; set; }
 
     }
 }

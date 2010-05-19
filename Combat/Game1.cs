@@ -109,8 +109,8 @@ namespace Combat
             var velocity = new Vector2(-(float)Math.Cos(tank.Rotation),
                                          -(float)Math.Sin(tank.Rotation)) * 1000.0f;
             var bullet = new Bullet(this, tank.TransformedCenter + velocity * .015f);
-                        
-            bullet.OwningTank = tank;
+
+            bullet.Opponent = tank == player1 ? player2 : player1;
 
             bullet.Velocity = velocity;
 
