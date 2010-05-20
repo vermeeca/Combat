@@ -12,9 +12,9 @@ namespace Combat
     {
 
         public Vector2 Velocity { get; set; }
-        //public float Angle { get; set; }
 
 
+        public List<Block> Obstacles { get; set; }
         
         public Bullet(Game game, Vector2 position)
             : this(game, position, game.Content.Load<Texture2D>("Ball"))
@@ -41,8 +41,34 @@ namespace Combat
                 Owner.Score++;
                 Game.Components.Remove(this);
             }
+            CheckObstacles();
             base.Update(gameTime);
 
+        }
+
+        private void CheckObstacles()
+        {
+            foreach (var obstacle in Obstacles)
+            {
+                if (ObstacleHit(obstacle))
+                {
+                    return;
+                }
+            }
+        }
+
+        private bool ObstacleHit(Block obstacle)
+        {
+            if (this.Intersects(obstacle))
+            {
+                this.ResetPositionFrom(obstacle);
+                //hit top
+                this.Velocity *= this.DetermineBounceDirectionFrom(obstacle);
+
+                return true;
+            }
+
+            return false;
         }
 
         private void CheckDistanceTraveled()

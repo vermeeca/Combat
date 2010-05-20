@@ -66,6 +66,9 @@ namespace Combat
             return block;
         }
 
+
+        private List<Block> blocks = new List<Block>();
+
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
         /// This is where it can query for any required services and load any non-graphic
@@ -83,6 +86,8 @@ namespace Combat
             Components.Add(NewRectangleBlock(center + new Vector2(100, 0), 0));
             Components.Add(NewRectangleBlock(center - new Vector2(0, 100), MathHelper.ToRadians(90)));
             Components.Add(NewRectangleBlock(center + new Vector2(0, 100), MathHelper.ToRadians(90)));
+
+            blocks = Components.Where(c => c is Block).Select(c => c as Block).ToList();
 
             var player1Position = new Vector2(graphics.GraphicsDevice.Viewport.Width - 100, graphics.GraphicsDevice.Viewport.Height / 2);
             var player2Position = new Vector2(100, graphics.GraphicsDevice.Viewport.Height / 2);
@@ -129,6 +134,7 @@ namespace Combat
 
             bullet.Opponent = tank == player1 ? player2 : player1;
             bullet.Owner = tank;
+            bullet.Obstacles = blocks;
 
             bullet.Velocity = velocity;
 
