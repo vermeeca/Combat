@@ -118,7 +118,7 @@ namespace Combat.UI
             base.Update(gameTime);
         }
 
-        private bool Dying()
+        public bool Dying()
         {
             return deathTimeout != null && deathTimeout.Value.TotalMilliseconds > 0;
         }

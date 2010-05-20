@@ -35,7 +35,7 @@ namespace Combat
             this.DistanceTraveled += traveled.Length();
             CheckBounce();
             CheckDistanceTraveled();
-            if (HasHitOpponent())
+            if (HasHitOpponent() && !(Opponent.Dying()))
             {
                 Opponent.Die();
                 Owner.Score++;
