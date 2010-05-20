@@ -35,6 +35,8 @@ namespace Combat
         private Controller player1Controller;
         private Controller player2Controller;
 
+        private SpriteFont scoreFont;
+
 
         //private List<Bullet> bullets = new List<Bullet>();
 
@@ -111,6 +113,7 @@ namespace Combat
             var bullet = new Bullet(this, tank.TransformedCenter + velocity * .015f);
 
             bullet.Opponent = tank == player1 ? player2 : player1;
+            bullet.Owner = tank;
 
             bullet.Velocity = velocity;
 
@@ -194,6 +197,7 @@ namespace Combat
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            scoreFont = Content.Load<SpriteFont>("ScoreFont");
         }
 
         /// <summary>
@@ -211,6 +215,15 @@ namespace Combat
         protected override void Draw(GameTime gameTime)
         {
             graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
+            spriteBatch.Begin();
+
+
+            spriteBatch.DrawString(scoreFont, player1.Score.ToString(), new Vector2(graphics.GraphicsDevice.Viewport.Width - 200, 0), Color.Red);
+            spriteBatch.DrawString(scoreFont, player2.Score.ToString(), new Vector2(200, 0), Color.Red);
+
+            spriteBatch.End();
+           
+
             base.Draw(gameTime);
         }
     }

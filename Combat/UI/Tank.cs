@@ -17,6 +17,8 @@ namespace Combat.UI
         private bool turningRight = false;
         private bool turningLeft = false;
 
+        public int Score { get; set; }
+
         public EventHandler<EventArgs<Tank>> Fired;
 
 

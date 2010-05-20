@@ -38,6 +38,7 @@ namespace Combat
             if (HasHitOpponent())
             {
                 Opponent.Die();
+                Owner.Score++;
                 Game.Components.Remove(this);
             }
             base.Update(gameTime);
@@ -111,6 +112,8 @@ namespace Combat
         }
 
         public Tank Opponent { get; set; }
+
+        public Tank Owner { get; set; }
 
     }
 }
