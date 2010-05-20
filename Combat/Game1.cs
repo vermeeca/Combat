@@ -57,6 +57,15 @@ namespace Combat
             Content.RootDirectory = "Content";
         }
 
+
+        private Block NewRectangleBlock(Vector2 position, float rotation)
+        {
+            var block = new Block(this, null, position, 75, 38);
+            block.Rotation = rotation;
+
+            return block;
+        }
+
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
         /// This is where it can query for any required services and load any non-graphic
@@ -68,6 +77,12 @@ namespace Combat
             // TODO: Add your initialization logic here
             SetWindowOnSurface();
             InitializeSurfaceInput();
+
+            var center = new Vector2(graphics.GraphicsDevice.Viewport.Width / 2, graphics.GraphicsDevice.Viewport.Height / 2);
+            Components.Add(NewRectangleBlock(center - new Vector2(100, 0), 0));
+            Components.Add(NewRectangleBlock(center + new Vector2(100, 0), 0));
+            Components.Add(NewRectangleBlock(center - new Vector2(0, 100), MathHelper.ToRadians(90)));
+            Components.Add(NewRectangleBlock(center + new Vector2(0, 100), MathHelper.ToRadians(90)));
 
             var player1Position = new Vector2(graphics.GraphicsDevice.Viewport.Width - 100, graphics.GraphicsDevice.Viewport.Height / 2);
             var player2Position = new Vector2(100, graphics.GraphicsDevice.Viewport.Height / 2);

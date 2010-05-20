@@ -104,6 +104,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CombatGameExtensions.cs" />
+    <Compile Include="UI\Block.cs" />
     <Compile Include="UI\Bullet.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="Game1.cs" />
