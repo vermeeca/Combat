@@ -103,9 +103,11 @@ namespace Combat
             return DistanceTraveled > 1500;
         }
 
+
+
         public bool HasHitOpponent()
         {
-            return this.DrawingRectangle.Intersects(Opponent.DrawingRectangle);
+            return this.Intersects(Opponent);
         }
 
         public Tank Opponent { get; set; }

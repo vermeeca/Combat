@@ -110,7 +110,7 @@ namespace Combat.UI
             if (Dying())
             {
                 Rotation += .5f;
-                deathTimeout.Value.Subtract(gameTime.ElapsedGameTime);
+                deathTimeout = deathTimeout.Value.Subtract(gameTime.ElapsedRealTime);
             }
 
             base.Update(gameTime);
