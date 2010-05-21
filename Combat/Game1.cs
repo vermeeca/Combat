@@ -58,11 +58,11 @@ namespace Combat
         }
 
 
-        private Block NewRectangleBlock(Vector2 position, float rotation)
+        private Block NewRectangleBlock(Vector2 position, bool rotated)
         {
-            var block = new Block(this, null, position, 75, 38);
-            block.Rotation = rotation;
-
+            int width = 75;
+            int height = 38;
+            var block = new Block(this, null, position, rotated ? height: width, rotated ? width:height);
             return block;
         }
 
@@ -82,10 +82,10 @@ namespace Combat
             InitializeSurfaceInput();
 
             var center = new Vector2(graphics.GraphicsDevice.Viewport.Width / 2, graphics.GraphicsDevice.Viewport.Height / 2);
-            Components.Add(NewRectangleBlock(center - new Vector2(100, 0), 0));
-            Components.Add(NewRectangleBlock(center + new Vector2(100, 0), 0));
-            Components.Add(NewRectangleBlock(center - new Vector2(0, 100), MathHelper.ToRadians(90)));
-            Components.Add(NewRectangleBlock(center + new Vector2(0, 100), MathHelper.ToRadians(90)));
+            Components.Add(NewRectangleBlock(center - new Vector2(100, 0), false));
+            Components.Add(NewRectangleBlock(center + new Vector2(100, 0), false));
+            Components.Add(NewRectangleBlock(center - new Vector2(0, 100), true));
+            Components.Add(NewRectangleBlock(center + new Vector2(0, 100), true));
 
             blocks = Components.Where(c => c is Block).Select(c => c as Block).ToList();
 
@@ -129,7 +129,7 @@ namespace Combat
             var tank = e.EventData;
 
             var velocity = new Vector2(-(float)Math.Cos(tank.Rotation),
-                                         -(float)Math.Sin(tank.Rotation)) * 1000.0f;
+                                         -(float)Math.Sin(tank.Rotation)) * 500.0f;
             var bullet = new Bullet(this, tank.TransformedCenter + velocity * .015f);
 
             bullet.Opponent = tank == player1 ? player2 : player1;

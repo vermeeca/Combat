@@ -61,9 +61,7 @@ namespace Combat
         {
             if (this.Intersects(obstacle))
             {
-                this.ResetPositionFrom(obstacle);
-                //hit top
-                this.Velocity *= this.DetermineBounceDirectionFrom(obstacle);
+                this.Velocity *= this.DetermineVelocityAndSetPositionFrom(obstacle);
 
                 return true;
             }

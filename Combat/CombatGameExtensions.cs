@@ -17,42 +17,35 @@ namespace Combat
             }
         }
 
-        public static void ResetPositionFrom(this UIElement one, UIElement two)
+        public static Vector2 DetermineVelocityAndSetPositionFrom(this UIElement one, UIElement two)
         {
-            //ugly
-            if (one.Left < two.Right && one.Right > two.Right)
-            {
-                one.Left = two.Right;
-            }
-            if (one.Right > two.Left && one.Left < two.Left)
-            {
-                one.Left = two.Left - one.Width;
-            }
-            if (one.Bottom > two.Top && one.Top < two.Top)
-            {
-                one.Top = two.Top - one.Height;
-            }
-
-        }
-
-        public static Vector2 DetermineBounceDirectionFrom(this UIElement one, UIElement two)
-        {
-            var rectOne = new Rectangle((int)one.Left, (int)one.Top, (int)one.Width, (int)one.Height);
-            //var rectTwo = new Rectangle((int)two.Left, (int)two.Top, (int)two.Width, (int)two.Height);
-            int y = 1;
             int x = 1;
+            int y = 1;
 
-            if(one.TopDistanceFrom(two) > one.LeftDistanceFrom(two))
+            if (one.Left < two.Right && one.Right > two.Right)//from the right
             {
+                one.Left = two.Right + 1;
                 x = -1;
             }
-            else
+            if (one.Right > two.Left && one.Left < two.Left)//from the left
             {
+                one.Left = two.Left - one.Width - 1;
+                x = -1;
+            }
+            if (one.Bottom > two.Top && one.Top < two.Top) //from the top
+            {
+                one.Top = two.Top - one.Height - 1;
+                y = -1;
+            }
+            if (one.Top < two.Bottom && one.Bottom > two.Bottom) //from the bottom
+            {
+                one.Top = two.Bottom + 1;
                 y = -1;
             }
 
+            //now slide
+            //now dip
             return new Vector2(x, y);
-
 
         }
 
