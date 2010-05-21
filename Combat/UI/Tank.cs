@@ -32,7 +32,7 @@ namespace Combat.UI
         private Tank(Game game, Vector2 position, Texture2D texture)
             : base(game, null, null, texture, new Vector2?(position), texture.Width, texture.Height, null)
         {
-
+            
         }
 
         private TimeSpan? deathTimeout;
@@ -91,38 +91,53 @@ namespace Combat.UI
             turningLeft = false;
         }
 
+        public void Reset(Vector2 position, float rotation)
+        {
+            this.TransformedCenter = position;
+            this.Rotation = rotation;
+            this.Score = 0;
+            this.deathTimeout = null;
+        }
+
         public override void Update(GameTime gameTime)
         {
+            try
+            {
 
-            var lastPosition = this.TransformedCenter;
+                var lastPosition = this.TransformedCenter;
 
-            if (movingForward)
-            {
-                MoveForward();
-            }
-            if (movingBackward)
-            {
-                MoveBackward();
-            }
+                if (movingForward)
+                {
+                    MoveForward();
+                }
+                if (movingBackward)
+                {
+                    MoveBackward();
+                }
 
-            if (this.CollidingWithAnObstacleOrWall())
-            {
-                this.TransformedCenter = lastPosition;
-            }
+                if (this.CollidingWithAnObstacleOrWall())
+                {
+                    this.TransformedCenter = lastPosition;
+                }
 
-            if (turningRight)
-            {
-                Rotation += .035f;
-            }
-            if (turningLeft)
-            {
-                Rotation -= .035f;
-            }
+                if (turningRight)
+                {
+                    Rotation += .035f;
+                }
+                if (turningLeft)
+                {
+                    Rotation -= .035f;
+                }
 
-            if (Dying())
+                if (Dying())
+                {
+                    Rotation += .5f;
+                    deathTimeout = deathTimeout.Value.Subtract(gameTime.ElapsedRealTime);
+                }
+            }
+            catch (Exception ex)
             {
-                Rotation += .5f;
-                deathTimeout = deathTimeout.Value.Subtract(gameTime.ElapsedRealTime);
+                Utility.Log(ex.ToString());
             }
 
             base.Update(gameTime);

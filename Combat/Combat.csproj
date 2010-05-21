@@ -116,6 +116,7 @@
     <Compile Include="UI\BoardBase.cs" />
     <Compile Include="UI\Tank.cs" />
     <Compile Include="UI\UIElement.cs" />
+    <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="GameThumbnail.png" />

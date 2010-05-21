@@ -20,6 +20,7 @@ using Microsoft.Xna.Framework.Net;
 using Microsoft.Xna.Framework.Storage;
 using Microsoft.Surface.Core;
 using Combat.UI;
+using Microsoft.Surface;
 
 namespace Combat
 {
@@ -131,6 +132,8 @@ namespace Combat
             Components.Add(player2Controller);
 
             base.Initialize();
+            ApplicationLauncher.SignalApplicationLoadComplete();
+            
         }
 
         private void TankFired(object sender, EventArgs<Tank> e)
@@ -155,6 +158,8 @@ namespace Combat
             Components.Add(bullet);
             
         }
+
+        
 
         protected override void Update(GameTime gameTime)
         {
@@ -183,24 +188,13 @@ namespace Combat
 
         private void ResetGame()
         {
-            var bulletsAndTanks = Components.Where(c => c is Bullet || c is Tank).ToList();
-            bulletsAndTanks.ForEach(c=>Components.Remove(c));
+            var bullets = Components.Where(c => c is Bullet).ToList();
+            bullets.ForEach(c => Components.Remove(c));
 
-            player1 = new Tank(this, player1OriginalPosition);
-            player1.Name = "Player1";
-            player1.Fired += TankFired;
-            player1.Obstacles = blocks;
-            player1Controller.Tank = player1;
+            player1.Reset(player1OriginalPosition, 0);
+            player2.Reset(player2OriginalPosition, MathHelper.ToRadians(180));
 
-            player2 = new Tank(this, player2OriginalPosition);
-            player2.Name = "Player2";
-            player2.Rotation = MathHelper.ToRadians(180);
-            player2.Fired += TankFired;
-            player2.Obstacles = blocks;
-            player2Controller.Tank = player2;
-
-            Components.Add(player1);
-            Components.Add(player2);
+            
         }
 
         private bool GameOver()
@@ -253,6 +247,7 @@ namespace Combat
                 Program.RemoveBorder(Window.Handle);
                 Program.PositionWindow(Window);
             }
+            
         }
 
         /// <summary>

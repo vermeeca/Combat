@@ -80,11 +80,17 @@ namespace Combat.UI
 
             if (button.HitTest(contact, false))
             {
-                button.Pressed();
+                if (button.Pressed != null)
+                {
+                    button.Pressed();
+                }
             }
             else
             {
-                button.Released();
+                if (button.Released != null)
+                {
+                    button.Released();
+                }
             }
         }
 
@@ -93,7 +99,7 @@ namespace Combat.UI
         {
             var touched = this.HitTesting(contact, false);
 
-            if (touched is Button)
+            if (touched != null && touched is Button)
             {
                 var button = touched as Button;
                 button.Contact = contact;
@@ -108,7 +114,7 @@ namespace Combat.UI
         {
             var touched = this.HitTesting(contact, false);
 
-            if (touched is Button)
+            if (touched != null && touched is Button)
             {
                 var button = touched as Button;
                 button.Contact = null;
