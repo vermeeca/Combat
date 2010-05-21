@@ -18,10 +18,19 @@ namespace Combat.UI
         public override IEnumerable<Block> GetObstacles()
         {
             var blocks = new List<Block>();
-            blocks.Add(NewRectangleBlock(center - new Vector2(100, 0), false));
-            blocks.Add(NewRectangleBlock(center + new Vector2(100, 0), false));
-            blocks.Add(NewRectangleBlock(center - new Vector2(0, 100), true));
-            blocks.Add(NewRectangleBlock(center + new Vector2(0, 100), true));
+            blocks.Add(NewRectangleBlock(center - new Vector2(75, 0), 50, 25));
+            blocks.Add(NewRectangleBlock(center + new Vector2(75, 0), 50, 25));
+            blocks.Add(NewRectangleBlock(center - new Vector2(0, 75), 25, 50));
+            blocks.Add(NewRectangleBlock(center + new Vector2(0, 75), 25, 50));
+
+
+            blocks.Add(NewRectangleBlock(center - new Vector2(200, 0), 25, 100));
+            blocks.Add(NewRectangleBlock(center - new Vector2(225, 37.5f), 25, 25));
+            blocks.Add(NewRectangleBlock(center - new Vector2(225, -37.5f), 25, 25));
+
+            blocks.Add(NewRectangleBlock(center + new Vector2(200, 0), 25, 100));
+            blocks.Add(NewRectangleBlock(center + new Vector2(225, 37.5f), 25, 25));
+            blocks.Add(NewRectangleBlock(center + new Vector2(225, -37.5f), 25, 25));
 
             return blocks;
             

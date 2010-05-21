@@ -19,11 +19,9 @@ namespace Combat.UI
             this.game = game;
         }
 
-        protected Block NewRectangleBlock(Vector2 position, bool rotated)
+        protected Block NewRectangleBlock(Vector2 position, int width, int height)
         {
-            int width = 75;
-            int height = 38;
-            var block = new Block(game, null, position, rotated ? height : width, rotated ? width : height);
+            var block = new Block(game, null, position, width, height);
             return block;
         }
 
