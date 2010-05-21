@@ -17,6 +17,11 @@ namespace Combat
             }
         }
 
+        public static bool Exists<T>(this IEnumerable<T> collection, Func<T, bool> condition)
+        {
+            return (collection.FirstOrDefault(condition) != null);
+        }
+
         public static Vector2 DetermineVelocityAndSetPositionFrom(this UIElement one, UIElement two)
         {
             int x = 1;

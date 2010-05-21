@@ -121,6 +121,11 @@ namespace Combat
         {
             var tank = e.EventData;
 
+            if (Components.Where(c=>c is Bullet).Select(c => c as Bullet).Exists(b => b.Owner == tank))
+            {
+                return;
+            }
+
             var velocity = new Vector2(-(float)Math.Cos(tank.Rotation),
                                          -(float)Math.Sin(tank.Rotation)) * 500.0f;
             var bullet = new Bullet(this, tank.TransformedCenter + velocity * .015f);
