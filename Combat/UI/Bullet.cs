@@ -14,7 +14,7 @@ namespace Combat
         public Vector2 Velocity { get; set; }
 
 
-        public List<Block> Obstacles { get; set; }
+        public IEnumerable<Block> Obstacles { get; set; }
         
         public Bullet(Game game, Vector2 position)
             : this(game, position, game.Content.Load<Texture2D>("Ball"))

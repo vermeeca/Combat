@@ -58,16 +58,10 @@ namespace Combat
         }
 
 
-        private Block NewRectangleBlock(Vector2 position, bool rotated)
-        {
-            int width = 75;
-            int height = 38;
-            var block = new Block(this, null, position, rotated ? height: width, rotated ? width:height);
-            return block;
-        }
 
 
-        private List<Block> blocks = new List<Block>();
+
+        private IEnumerable<Block> blocks;
 
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
@@ -82,12 +76,11 @@ namespace Combat
             InitializeSurfaceInput();
 
             var center = new Vector2(graphics.GraphicsDevice.Viewport.Width / 2, graphics.GraphicsDevice.Viewport.Height / 2);
-            Components.Add(NewRectangleBlock(center - new Vector2(100, 0), false));
-            Components.Add(NewRectangleBlock(center + new Vector2(100, 0), false));
-            Components.Add(NewRectangleBlock(center - new Vector2(0, 100), true));
-            Components.Add(NewRectangleBlock(center + new Vector2(0, 100), true));
+            Board1 board = new Board1(this);
 
-            blocks = Components.Where(c => c is Block).Select(c => c as Block).ToList();
+
+            blocks = board.GetObstacles();
+            blocks.ForEach(b => Components.Add(b));
 
             var player1Position = new Vector2(graphics.GraphicsDevice.Viewport.Width - 100, graphics.GraphicsDevice.Viewport.Height / 2);
             var player2Position = new Vector2(100, graphics.GraphicsDevice.Viewport.Height / 2);

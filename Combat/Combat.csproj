@@ -105,6 +105,7 @@
   <ItemGroup>
     <Compile Include="CombatGameExtensions.cs" />
     <Compile Include="UI\Block.cs" />
+    <Compile Include="UI\Board1.cs" />
     <Compile Include="UI\Bullet.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="Game1.cs" />
@@ -112,6 +113,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="UI\Button.cs" />
     <Compile Include="UI\Controller.cs" />
+    <Compile Include="UI\BoardBase.cs" />
     <Compile Include="UI\Tank.cs" />
     <Compile Include="UI\UIElement.cs" />
   </ItemGroup>
