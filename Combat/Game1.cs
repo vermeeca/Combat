@@ -36,12 +36,24 @@ namespace Combat
         private Controller player2Controller;
 
         private SpriteFont scoreFont;
+        private SpriteFont gameOverFont;
+
+        private Vector2 player1OriginalPosition;
+        private Vector2 player2OriginalPosition;
 
 
         //private List<Bullet> bullets = new List<Bullet>();
 
         private Tank player1;
         private Tank player2;
+
+
+
+        private string gameOverMessage = "{0} wins!  Now go submit a TI Idea to celebrate.";
+        private TimeSpan? gameOverMessageDisplayed = null;
+
+
+
 
         /// <summary>
         /// The target receiving all surface input for the application.
@@ -82,24 +94,28 @@ namespace Combat
             blocks = board.GetObstacles();
             blocks.ForEach(b => Components.Add(b));
 
-            var player1Position = new Vector2(graphics.GraphicsDevice.Viewport.Width - 100, graphics.GraphicsDevice.Viewport.Height / 2);
-            var player2Position = new Vector2(100, graphics.GraphicsDevice.Viewport.Height / 2);
+            player1OriginalPosition = new Vector2(graphics.GraphicsDevice.Viewport.Width - 100, graphics.GraphicsDevice.Viewport.Height / 2);
+            player2OriginalPosition = new Vector2(100, graphics.GraphicsDevice.Viewport.Height / 2);
 
             ContactTarget.ContactAdded += new EventHandler<ContactEventArgs>(ContactTarget_ContactAdded);
             ContactTarget.ContactRemoved += new EventHandler<ContactEventArgs>(ContactTarget_ContactRemoved);
             ContactTarget.ContactChanged += new EventHandler<ContactEventArgs>(ContactTarget_ContactChanged);
 
-            player1 = new Tank(this, player1Position);
+            player1 = new Tank(this, player1OriginalPosition);
+            player1.Name = "Player1";
             player1.Fired += TankFired;
+            player1.Obstacles = blocks;
             player1Controller = new Controller(this, new Vector2(graphics.GraphicsDevice.Viewport.Width, graphics.GraphicsDevice.Viewport.Height));
             player1Controller.Tank = player1;
             player1Controller.Height *= 2;
             player1Controller.Width *= 2;
             player1Controller.TransformedCenter -= new Vector2(player1Controller.Width * 1.5f, player1Controller.Height / 2);
 
-            player2 = new Tank(this, player2Position);
+            player2 = new Tank(this, player2OriginalPosition);
+            player2.Name = "Player2";
             player2.Rotation = MathHelper.ToRadians(180);
             player2.Fired += TankFired;
+            player2.Obstacles = blocks;
 
             player2Controller = new Controller(this, new Vector2(0, graphics.GraphicsDevice.Viewport.Height));
             player2Controller.Tank = player2;
@@ -138,6 +154,58 @@ namespace Combat
 
             Components.Add(bullet);
             
+        }
+
+        protected override void Update(GameTime gameTime)
+        {
+            if (GameOver())
+            {
+                if (gameOverMessageDisplayed == null)
+                {
+                    gameOverMessageDisplayed = TimeSpan.FromSeconds(5);
+                    return;
+                }
+
+                if (gameOverMessageDisplayed.Value.TotalMilliseconds > 0)
+                {
+                    gameOverMessageDisplayed = gameOverMessageDisplayed.Value.Subtract(gameTime.ElapsedRealTime);
+                }
+                if (gameOverMessageDisplayed.Value.TotalMilliseconds < 0)
+                {
+                    ResetGame();
+                }
+                
+                
+                return;
+            }
+            base.Update(gameTime);
+        }
+
+        private void ResetGame()
+        {
+            var bulletsAndTanks = Components.Where(c => c is Bullet || c is Tank).ToList();
+            bulletsAndTanks.ForEach(c=>Components.Remove(c));
+
+            player1 = new Tank(this, player1OriginalPosition);
+            player1.Name = "Player1";
+            player1.Fired += TankFired;
+            player1.Obstacles = blocks;
+            player1Controller.Tank = player1;
+
+            player2 = new Tank(this, player2OriginalPosition);
+            player2.Name = "Player2";
+            player2.Rotation = MathHelper.ToRadians(180);
+            player2.Fired += TankFired;
+            player2.Obstacles = blocks;
+            player2Controller.Tank = player2;
+
+            Components.Add(player1);
+            Components.Add(player2);
+        }
+
+        private bool GameOver()
+        {
+            return player1.Score == 5 || player2.Score == 5;
         }
 
         void ContactTarget_ContactChanged(object sender, ContactEventArgs e)
@@ -208,15 +276,12 @@ namespace Combat
         }
 
 
-        // This is a texture we can render.
-        Texture2D ballTexture;
-
-
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             scoreFont = Content.Load<SpriteFont>("ScoreFont");
+            gameOverFont = Content.Load<SpriteFont>("GameOverFont");
         }
 
         /// <summary>
@@ -240,10 +305,24 @@ namespace Combat
             spriteBatch.DrawString(scoreFont, player1.Score.ToString(), new Vector2(graphics.GraphicsDevice.Viewport.Width - 200, 0), Color.Red);
             spriteBatch.DrawString(scoreFont, player2.Score.ToString(), new Vector2(200, 0), Color.Red);
 
+
+            if (GameOver())
+            { 
+                var winner = GetWinner();
+                var message = string.Format(gameOverMessage, winner.Name);
+                spriteBatch.DrawString(gameOverFont, message, new Vector2(75, graphics.GraphicsDevice.Viewport.Height - 250), Color.Red);
+            }
+
+
             spriteBatch.End();
            
 
             base.Draw(gameTime);
+        }
+
+        private Tank GetWinner()
+        {
+            return player1.Score == 5 ? player1 : player2;
         }
     }
 }

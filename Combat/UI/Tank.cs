@@ -21,6 +21,7 @@ namespace Combat.UI
 
         public EventHandler<EventArgs<Tank>> Fired;
 
+        public IEnumerable<Block> Obstacles { get; set; }
 
         public Tank(Game game, Vector2 position)
             : this(game, position, game.Content.Load<Texture2D>("Tank"))
@@ -92,6 +93,9 @@ namespace Combat.UI
 
         public override void Update(GameTime gameTime)
         {
+
+            var lastPosition = this.TransformedCenter;
+
             if (movingForward)
             {
                 MoveForward();
@@ -100,6 +104,12 @@ namespace Combat.UI
             {
                 MoveBackward();
             }
+
+            if (this.CollidingWithAnObstacleOrWall())
+            {
+                this.TransformedCenter = lastPosition;
+            }
+
             if (turningRight)
             {
                 Rotation += .035f;
@@ -116,6 +126,18 @@ namespace Combat.UI
             }
 
             base.Update(gameTime);
+        }
+
+        private bool CollidingWithAnObstacleOrWall()
+        {
+            return CollidingWithWall() || Obstacles.Exists(o => this.Intersects(o));
+            
+        }
+
+        private bool CollidingWithWall()
+        {
+            return this.Left < 0 || this.Right > this.Game.GraphicsDevice.Viewport.Width
+                || this.Top < 0 || this.Bottom > this.Game.GraphicsDevice.Viewport.Height;
         }
 
         public bool Dying()
